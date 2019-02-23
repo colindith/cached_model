@@ -11,10 +11,10 @@ def test(request):
     article = Article('this is title', 'this is body')
     article.save()
 
-    Article.objects.all()
+    aaa = list(Article.objects.all())
 
     # display the title and body here
 
 
-    context = []
+    context = aaa
     return Response(context)
