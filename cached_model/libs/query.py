@@ -142,13 +142,8 @@ class QuerySet:
         return qs._result_cache[0]
 
     def create(self, **kwargs):
-        """
-        Create a new object with the given kwargs, saving it to the database
-        and returning the created object.
-        """
         obj = self.model(**kwargs)
-        self._for_write = True
-        obj.save(force_insert=True, using=self.db)
+        obj.save()
         return obj
 
     def first(self):

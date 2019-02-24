@@ -1,6 +1,9 @@
 import inspect
+from django.utils import timezone
 from .manager import Manager
-from .fields import Field, AutoField
+from .cached_table import Table
+from .fields import Field, AutoField, ForeignKey
+
 
 
 class Options:
@@ -55,7 +58,7 @@ class Model(metaclass=ModelBase):
         _setattr = setattr
 
         _setattr(self, self.pk_field.name, None)
-
+        # TODO: Why Django models won't have Field object when create???
         if not kwargs:
             # TODO: Defered field should be load later
             for val, field in zip(args, self._meta.fields):
@@ -69,10 +72,18 @@ class Model(metaclass=ModelBase):
                 _setattr(self, field_name, val)
 
     def save(self):
-        data = {
-            field.attname: getattr(self, field.attname)
-            for field in self._meta.fields
-        }
+        data = dict()
+        for field in self._meta.fields:
+            if hasattr(self, field.attname) and not isinstance(getattr(self, field.attname), Field): # TODO: remove the 2nd expression and fill-in in models creation
+                data.update({
+                    field.attname: getattr(self, field.attname)
+                })
+            elif field.default:
+                data.update({field.attname: field.default})
+            elif field.auto_now_add:
+                data.update({field.attname: timezone.localtime()})
+            else:
+                data.update({field.attname: None})
         try:
             self.table.update(data)
         except:

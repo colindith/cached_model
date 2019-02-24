@@ -75,7 +75,7 @@ class Singleton(type):
 class TableManager(metaclass=Singleton):
     def __init__(self):
         # TODO: registry model
-        self.tables = dict    # memo all the tables
+        self.tables = dict()    # memo all the tables
 
     def registry(self, table):
         if not hasattr(table, 'name'):
